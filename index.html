@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101627">
+<meta name="robots" content="noindex">
+<title>Find your table</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* Benin regalia: indigo cloth, coral beads, cast brass, ivory lace */
+    --indigo:#101627;
+    --indigo-2:#182137;
+    --indigo-3:#1F2B45;
+    --coral:#D9553B;
+    --brass:#C9A063;
+    --brass-soft:#8E7342;
+    --ivory:#F3ECDD;
+    --muted:#8D93A8;
+    --hair:rgba(243,236,221,.12);
+
+    --display:"Fraunces",Georgia,"Times New Roman",serif;
+    --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+
+  body{
+    min-height:100vh;min-height:100dvh;
+    background:var(--indigo);
+    color:var(--ivory);
+    font-family:var(--ui);
+    -webkit-font-smoothing:antialiased;
+    -webkit-text-size-adjust:100%;
+    overflow-x:hidden;
+  }
+
+  /* warm glow behind the masthead, nothing more */
+  body::before{
+    content:"";position:fixed;top:-30vh;left:50%;transform:translateX(-50%);
+    width:130vw;height:70vh;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse at 50% 40%,rgba(217,85,59,.16),transparent 62%);
+  }
+
+  .sheet{position:relative;z-index:1;max-width:33rem;margin:0 auto;
+    padding:0 1.35rem 3.5rem;padding-top:max(2.5rem,env(safe-area-inset-top))}
+
+  /* ---------- bead strand: the one motif ---------- */
+  .beads{display:flex;align-items:center;gap:.42rem;height:1rem}
+  .beads i{display:block;border-radius:50%;background:var(--coral);flex:none}
+  .beads i:nth-child(3n){background:var(--brass)}
+  .beads i:nth-child(4n){background:var(--brass-soft)}
+
+  /* ---------- masthead ---------- */
+  .eyebrow{font-size:.66rem;font-weight:600;letter-spacing:.26em;text-transform:uppercase;
+    color:var(--coral);margin:1.6rem 0 1.1rem}
+
+  h1{font-family:var(--display);font-weight:600;
+    font-size:clamp(2.5rem,12vw,3.9rem);line-height:.96;letter-spacing:-.02em;
+    margin:0}
+  h1 em{display:block;font-style:normal;color:var(--brass)}
+
+  .sub{color:var(--muted);font-size:.98rem;line-height:1.55;margin:1.15rem 0 2.1rem;max-width:24rem}
+
+  /* ---------- search ---------- */
+  .field{position:relative;display:flex;align-items:center}
+  .field svg{position:absolute;left:1.05rem;width:1.15rem;height:1.15rem;
+    stroke:var(--brass-soft);fill:none;stroke-width:1.7;pointer-events:none}
+
+  #q{width:100%;font-family:var(--ui);font-size:1.12rem;color:var(--ivory);
+    background:var(--indigo-2);border:1px solid var(--hair);border-radius:.85rem;
+    padding:1.1rem 1rem 1.1rem 2.95rem;outline:none;
+    transition:border-color .2s,box-shadow .2s,background .2s;
+    -webkit-appearance:none;appearance:none}
+  #q::placeholder{color:#5F6579}
+  #q::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none}
+  #q:focus-visible{border-color:var(--brass);background:var(--indigo-3);
+    box-shadow:0 0 0 3px rgba(201,160,99,.2)}
+
+  .clear{position:absolute;right:.6rem;width:2.1rem;height:2.1rem;border:0;
+    background:none;color:var(--muted);font-size:1.35rem;line-height:1;cursor:pointer;
+    border-radius:50%;display:none}
+  .clear.on{display:block}
+  .clear:hover{color:var(--ivory)}
+  .clear:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
+
+  /* ---------- results ---------- */
+  #results{list-style:none;margin:1.4rem 0 0;padding:0}
+  #results li{border-top:1px solid var(--hair);animation:slip .28s ease both}
+  #results li:last-child{border-bottom:1px solid var(--hair)}
+  #results li:nth-child(1){animation-delay:.01s}
+  #results li:nth-child(2){animation-delay:.04s}
+  #results li:nth-child(3){animation-delay:.07s}
+  #results li:nth-child(4){animation-delay:.10s}
+  #results li:nth-child(5){animation-delay:.13s}
+  @keyframes slip{from{opacity:0;transform:translateY(-.3rem)}to{opacity:1;transform:none}}
+
+  .row{width:100%;display:flex;align-items:center;gap:.9rem;background:none;border:0;
+    color:inherit;font:inherit;text-align:left;padding:1.18rem .3rem;cursor:pointer;
+    transition:padding-left .18s}
+  .row:hover,.row:focus-visible{padding-left:.75rem}
+  .row:hover .rname,.row:focus-visible .rname{color:var(--brass)}
+  .row:focus-visible{outline:2px solid var(--brass);outline-offset:-3px;border-radius:.5rem}
+  .rname{flex:1;font-size:1.08rem;line-height:1.35;transition:color .18s}
+  .arrow{flex:none;color:var(--brass-soft);font-size:1.05rem}
+
+  .note{color:var(--muted);font-size:.95rem;line-height:1.6;margin:1.5rem 0 0}
+  .note b{color:var(--ivory);font-weight:600}
+
+  .foot{display:flex;align-items:center;gap:.7rem;margin-top:3rem;
+    color:#5F6579;font-size:.76rem;letter-spacing:.14em;text-transform:uppercase}
+  .foot .line{flex:1;height:1px;background:var(--hair)}
+
+  /* ---------- the place card ---------- */
+  #answer{position:fixed;inset:0;z-index:20;background:var(--indigo);
+    display:flex;align-items:center;justify-content:center;padding:1.35rem}
+  #answer[hidden]{display:none}
+  #answer::before{content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(ellipse at 50% 45%,rgba(201,160,99,.15),transparent 60%)}
+
+  .card{position:relative;width:100%;max-width:24rem;text-align:center;
+    border:1px solid rgba(201,160,99,.32);border-radius:1.1rem;
+    background:linear-gradient(180deg,var(--indigo-2),var(--indigo));
+    padding:2.5rem 1.5rem 2.1rem;
+    animation:card .5s cubic-bezier(.16,.84,.24,1) both}
+  @keyframes card{from{opacity:0;transform:translateY(1.1rem) scale(.97)}to{opacity:1;transform:none}}
+
+  .card .beads{justify-content:center}
+  .card .who{font-family:var(--display);font-weight:600;
+    font-size:clamp(1.35rem,6.2vw,1.7rem);line-height:1.2;
+    margin:1.5rem 0 0}
+  .card .rule{width:2.6rem;height:1px;background:var(--brass-soft);margin:1.15rem auto}
+  .card .label{font-size:.66rem;font-weight:600;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--coral);margin:0}
+  .card .num{font-family:var(--display);font-weight:600;
+    font-size:clamp(5rem,34vw,8.5rem);line-height:.92;color:var(--brass);
+    margin:.15rem 0 0;letter-spacing:-.035em;
+    animation:num .55s .12s cubic-bezier(.16,.84,.24,1) both}
+  @keyframes num{from{opacity:0;transform:translateY(.28em)}to{opacity:1;transform:none}}
+  .card .tail{margin-top:1.6rem}
+
+  .back{margin-top:1.9rem;background:none;border:1px solid var(--hair);border-radius:99px;
+    color:var(--muted);font:inherit;font-size:.92rem;padding:.72rem 1.5rem;cursor:pointer;
+    transition:color .18s,border-color .18s}
+  .back:hover,.back:focus-visible{color:var(--ivory);border-color:var(--brass)}
+  .back:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+
+  .enter{animation:enter .55s cubic-bezier(.16,.84,.24,1) both}
+  .d1{animation-delay:.02s} .d2{animation-delay:.10s}
+  .d3{animation-delay:.18s} .d4{animation-delay:.26s}
+  @keyframes enter{from{opacity:0;transform:translateY(.7rem)}to{opacity:1;transform:none}}
+
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation:none!important;transition:none!important}
+  }
+</style>
+</head>
+<body>
+
+<main class="sheet" id="sheet">
+  <div class="beads enter d1" aria-hidden="true">
+    <i style="width:9px;height:9px"></i><i style="width:6px;height:6px"></i>
+    <i style="width:11px;height:11px"></i><i style="width:6px;height:6px"></i>
+    <i style="width:8px;height:8px"></i><i style="width:5px;height:5px"></i>
+    <i style="width:10px;height:10px"></i>
+  </div>
+
+  <p class="eyebrow enter d1" id="event-line">September 2026</p>
+  <h1 class="enter d2">Find your<em>table</em></h1>
+  <p class="sub enter d3">Start typing your name &mdash; your surname on its own usually works best.</p>
+
+  <div class="field enter d4">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>
+    </svg>
+    <input id="q" type="search" inputmode="search" autocomplete="off"
+           autocapitalize="words" spellcheck="false" enterkeyhint="search"
+           placeholder="Your name" aria-label="Your name">
+    <button class="clear" id="clear" type="button" aria-label="Clear">&times;</button>
+  </div>
+
+  <ul id="results" aria-live="polite"></ul>
+  <p class="note" id="note"></p>
+
+  <div class="foot">
+    <span id="stat"></span><span class="line"></span>
+  </div>
+</main>
+
+<div id="answer" hidden>
+  <div class="card" role="dialog" aria-modal="true" aria-labelledby="a-who">
+    <div class="beads" aria-hidden="true">
+      <i style="width:7px;height:7px"></i><i style="width:5px;height:5px"></i>
+      <i style="width:9px;height:9px"></i><i style="width:5px;height:5px"></i>
+      <i style="width:7px;height:7px"></i>
+    </div>
+    <p class="who" id="a-who"></p>
+    <div class="rule"></div>
+    <p class="label">Table</p>
+    <p class="num" id="a-num"></p>
+    <div class="beads tail" aria-hidden="true">
+      <i style="width:7px;height:7px"></i><i style="width:5px;height:5px"></i>
+      <i style="width:9px;height:9px"></i><i style="width:5px;height:5px"></i>
+      <i style="width:7px;height:7px"></i>
+    </div>
+    <button class="back" id="a-back" type="button">Search again</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   GUEST LIST -- one per line:   Name, Table
+   Edit a line, save, re-upload. Nothing else needs touching.
+   ============================================================ */
+const GUESTS = `
+Andrew Ehimen, 1
+Justin Ehimen, 1
+Kelvin Ehimen, 1
+Chinanza O, 1
+Dumebi O, 1
+Jed I, 1
+Kelvin E, 1
+Jeff E, 1
+Leslie E, 1
+Mama Jeff, 1
+Chigozie M, 2
+Mitchelle M, 2
+Uzoma O, 2
+Yvonne E, 2
+Ebube O, 2
+Joy I, 2
+Veronica O, 2
+Eunice M, 2
+Bayo M, 2
+Sarah Ehikhamen, 2
+Ngozi Eke, 3
+Ndidi O, 3
+Mariam Akuette, 3
+Mrs Rosemarie Jeremiah, 3
+Mr Jeremiah, 3
+Mrs Ehinome Nwani, 3
+Mr Nwani, 3
+Ms. Felicite, 3
+Ms. Anne Ogbe, 3
+Florence Agwaze, 3
+Elder Charles, 4
+Mrs Ehikhamen, 4
+Dr Rosemary Aliu, 4
+Mr Adolphus Odianose, 4
+Mr Idoni Omoera, 4
+Moses Okhiria, 4
+Mrs Oboh, 4
+Mr Izevbigie, 4
+Mrs Izevbigie, 4
+Pastor Omoegbele, 5
+Deaconese Omoegbele, 5
+Dr Henry Ohen, 5
+Mrs Ohen, 5
+Dr Mark Irabor, 5
+Dr Deborah Iraboh, 5
+Mr Tony Obeahon, 5
+Mrs Omoye Obeahon, 5
+Mrs Patience Afolabi, 5
+Mr Dan Uwagboi, 6
+Mrs Tina Ogbeide, 6
+Mr Olaniyi Newton, 6
+Mr Victor Richard, 6
+Mrs Stella Airhia, 6
+Mr Lucky Uwagboi, 6
+Mrs Lucky Uwagboi, 6
+Mr Israel Edevbaro, 6
+Mrs Funmi Edevbaro, 6
+Mrs Edith Nze, 7
+Ms. Amaka Nze, 7
+Mr Ijehor, 7
+Mrs Ijehor, 7
+Joan Jegede, 7
+Austin Oganzor, 7
+Austin Irabor, 7
+Mr Nnamdi Iyeh, 7
+Mrs Chinyere Iyeh, 7
+Dr Aihie (Vibration), 8
+Mrs Aihie (Vibration), 8
+Mr Eric (Vibration), 8
+Mr Teslim Bello Osaigie, 8
+Mrs Osaigie, 8
+Mr Ihonre, 8
+Mrs Ihonre, 8
+Mr Nosa Ogbeifun, 8
+Dr Sele Ogbeifun, 8
+Mr Roland Omhenke, 9
+Mrs Anthonia Omhenke, 9
+Mr Bright Usifoh, 9
+Mrs Blessing Usifoh, 9
+Mr Patrick Ujadughele, 9
+Mr Frank Orukpe, 9
+Mrs Vivian Orukpe, 9
+Mr Ukpebor, 9
+Mrs Ukpebor, 9
+Mrs. Margaret Okoloise, 9
+High Chief Igene, 10
+High Chief Ighalo, 10
+Mrs Florence Ighalo, 10
+Mr Omo Akhile, 10
+Mrs Adesuwa Ohuoba, 10
+Mrs Paulyn Inegbedion, 10
+Mrs Rachel Imafidon, 10
+Mrs Dolly Oare, 10
+Blessing Eromomene, 11
+Gina Eromomene, 11
+Benedicta Enonbun, 11
+Jonathan Okojiabulu, 11
+David Isibor, 11
+Izehi Isibor, 11
+Engr Jude Daudu, 11
+Dr Respect Daudu, 11
+Mr Yinka Shekoni (Baruda), 12
+Yinka Guest, 12
+Dr Ebi Oare, 12
+Mrs Jemila Oare, 12
+Mr Desmond Obodo, 12
+Mrs Collete Obodo, 12
+Mr Tony Aghaji, 12
+Mrs Aghaji, 12
+Mrs Valentine Nouma, 12
+Mr Niyi Olawepo, 13
+Mrs Ronke Olawepo, 13
+Mr Chrys Ugorji, 13
+Mrs Ugorji, 13
+Mr Yemi Ajayi, 13
+Mrs Ajayi, 13
+Mr Samson Obuseh, 13
+Mrs Obuseh (Chiamaka Nweke), 13
+Mr Femi Ayoola, 13
+Mrs Ayoola, 13
+Mr Ugo Lekwauwa, 14
+Mrs Akudo Lekwauwa, 14
+Dr Kayode Itiola, 14
+Mrs Cynthia Itiola, 14
+Mr Bright Anozie, 14
+Mrs Sophie Anozie, 14
+Mr Nwokoro, 14
+Mrs Chinwe Nwokoro, 14
+Mr Francis Manga, 14
+Mrs Manga, 14
+Mr Victor Ogbenna, 15
+Mrs Ogbenna, 15
+Mr Stanley Ozigbo, 15
+Ms Imade, 15
+Ms Imade Guest, 15
+Mr Steve Nwoko, 15
+Mrs Nwoko, 15
+Mr Maxwell Ezeji, 15
+Mrs Yvonne Ezeji, 15
+Mrs Chidinma Achinuelo, 15
+Mr Omonzejele, 16
+Mrs Edith Omonzejele, 16
+Omonzejele Guest, 16
+Mr Toju Onuwaje, 16
+Mrs Amoni Onuwaje, 16
+Mr Ademola Adeoti, 16
+Mrs Temisan Adeoti, 16
+Mrs Tuoyo Onuwaje, 16
+Mrs Ifueko Eribo Akpata, 16
+Mrs Akpata Guest, 16
+Mr Eugene Edokpa, 17
+Mr HUMPHREY ABUMERE, 17
+Mr Bawo Nana, 17
+Mr Sam Edoba, 17
+Mr Fumnanya Nwaokobia, 17
+Mrs Fumnanya Nwaokobia, 17
+Mr Dickson Dike, 17
+King Bullah Omobogie, 17
+Mr Philip White, 18
+Mr Lucky Nwene, 18
+Mr Nwaugbala Onyeka, 18
+Mr Bobby Ukpabi, 18
+Mr Fredrick Alizomor, 18
+Mr Felix Ukpabi, 18
+Mr emmanuel osiegbu, 18
+Mr chuks Ojehe, 18
+Mr chuks Ojehe (guest), 18
+Mr Emefiele Victor Akwara, 18
+Mr Salau, 19
+Mrs Salau, 19
+Mrs Taofeekat Badmus, 19
+Mrs Remi Olaniru, 19
+Ms. Seyi Fad, 19
+Atinuke Bamiro, 19
+Mr Adelaja, 19
+Mrs Adelaja, 19
+High Chief Godday Ebiluye, 20
+Mrs Godday Ebiluye, 20
+High Chief Philips Ehiagwina, 20
+High Chief Philips Ehiagwina (guest), 20
+Mr Andrew Odia, 20
+Mr Peter Orukpe, 20
+Mr Samson Okosun, 20
+Mrs Samson Okosun, 20
+Mr Abu Adodo, 21
+Mrs Adodo, 21
+Mrs Evelyn Obiyon Aikharaekpen, 21
+Mr Aikharaekpen, 21
+Mr Chris Itua, 21
+Mrs Rita Itua, 21
+Dora Iremhinmhen, 21
+Mr Iremhinmhen, 21
+Josephine Emakpose, 21
+Mr Emakpose, 21
+Mr James Onobun, 22
+Mrs Onobun, 22
+Mr Jeffrey, 22
+Mrs Maris, 22
+Mr Ataghauman, 22
+Mrs Ataghauman, 22
+Mrs Bridget Ikhiake, 22
+Mrs Francess Woods, 22
+Mrs Woods (Guests), 22
+Mrs Mabel Izekor, 22
+Dr Vynce Omoleme, 23
+Dr Esther Vincent, 23
+Mrs Flora Kadiri, 23
+Mrs Josephine Omobhude, 23
+Mr Tony Iyere, 23
+Mrs Iyere, 23
+Mr Mathew Iyere, 23
+Mrs Iyere (2), 23
+Mr Chris Edokpa, 23
+Mrs Tammy Edokpa, 23
+Mr Olumese Odianosen, 24
+Mr Joshua Alli, 24
+Mr Matthew Omofuegbe, 24
+Mrs Omofuegbe, 24
+Mr Francis Itoya, 24
+Mrs Itoya, 24
+Engr Chris Ehizoba, 24
+Mrs Ehizoba, 24
+Mrs Omonivie Otoide, 24
+IDRISSA KARGBO, 24
+Mrs Toyin Ariyo, 25
+Mr Ariyo, 25
+Mr Gabriel Dada, 25
+Mrs Dada, 25
+Mr Tunde Ola, 25
+Mrs Ola, 25
+Mayern Richard, 25
+Mr Richard, 25
+Kasey Akpan, 25
+Mr Akpan, 25
+Mr Anjorin, 26
+Mrs Anjorin, 26
+Mr Anjorin jr, 26
+Ms. Iyabo Babajide, 26
+Mrs Helen Edozie, 26
+Mr Anthony Edozie, 26
+Mr Obadimeji, 26
+Mrs Obadimeji, 26
+Mr Emmanuel Omoegbele, 27
+Mrs Omoegbele, 27
+Dr Tracy Omoegbele, 27
+Mr John, 27
+Dr Faith Isiguzo, 27
+Mr Ike Isiguzo, 27
+Anne Omigie, 27
+Gloria Omigie, 27
+Mr Freeman, 27
+Mr Adeniyi Taiwo, 28
+Mrs Tolu Taiwo, 28
+Mrs Folashade Afolabi, 28
+Mrs Folashade Afolabi (guest), 28
+Paulyn Njuku, 28
+Leah Njuku, 28
+Mr Tijani, 28
+Mrs Tijani, Sefiyat, 28
+Sandra Nwegbu, 29
+Tumi Ade, 29
+Ubong Etuk, 29
+Sade Agbato, 29
+Toyin Solabi, 29
+Mr Solabi, 29
+Mr IIfeanyi Nwosu, 29
+Mrs Nwosu, 29
+Erina Imasogie, 29
+Michaella Bedford, 29
+Mr Scott Okosun, 30
+Mrs Scott Okosun, 30
+Mr Collins Okosun, 30
+Mrs Collins Okosun, 30
+Mr Victor Ikuehi, 30
+Mrs Brenda Ikuehi, 30
+Mr Ighodalo Ebhuoma, 30
+Mr Joseph Ujiagbe, 30
+Mr Ozi Emoni, 30
+`;
+
+/* The small line above the heading: */
+const EVENT_LINE = 'September 2026';
+
+/* ============================================================ */
+document.getElementById('event-line').textContent = EVENT_LINE;
+
+// Titles are stripped on BOTH sides, so typing "Mrs" alone matches nobody
+// but "Mrs Iyere" still finds her.
+const TITLES = new Set(['mr','mrs','ms','miss','dr']);
+
+function norm(s){
+  const base = (s||'').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9]+/g,' ').trim();
+  if (!base) return '';
+  return base.split(' ').filter(w => !TITLES.has(w)).join(' ');
+}
+
+const people = GUESTS.split('\n')
+  .map(l => l.trim())
+  .filter(l => l && !l.startsWith('#'))
+  .map(l => {
+    const i = l.lastIndexOf(',');
+    if (i === -1) return null;
+    const name = l.slice(0,i).trim(), table = l.slice(i+1).trim();
+    return (name && table) ? { name, table, key: norm(name) } : null;
+  })
+  .filter(Boolean);
+
+const CAP = 10;
+
+function search(raw){
+  const q = norm(raw);
+  if (q.length < 2) return { hits:[], total:0 };
+  const scored = people
+    .map(p => {
+      const words = p.key.split(' ');
+      let rank = -1;
+      if (p.key === q) rank = 0;
+      else if (p.key.startsWith(q)) rank = 1;
+      else if (words.some(w => w.startsWith(q))) rank = 2;
+      else if (p.key.includes(q)) rank = 3;
+      return { p, rank };
+    })
+    .filter(m => m.rank > -1)
+    .sort((a,b) => a.rank - b.rank || a.p.name.localeCompare(b.p.name));
+  return { hits: scored.slice(0,CAP).map(m => m.p), total: scored.length };
+}
+
+const input   = document.getElementById('q');
+const results = document.getElementById('results');
+const note    = document.getElementById('note');
+const answer  = document.getElementById('answer');
+const clearBt = document.getElementById('clear');
+const stat    = document.getElementById('stat');
+const sheet   = document.getElementById('sheet');
+
+const tables = new Set(people.map(p => p.table));
+stat.textContent = people.length + ' guests \u00b7 ' + tables.size + ' tables';
+
+let shown = [];
+
+function render(){
+  const raw = input.value;
+  const { hits, total } = search(raw);
+  shown = hits;
+
+  clearBt.classList.toggle('on', raw.length > 0);
+  results.innerHTML = '';
+
+  for (const p of hits){
+    const li = document.createElement('li');
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'row';
+    const n = document.createElement('span');
+    n.className = 'rname';
+    n.textContent = p.name;
+    const a = document.createElement('span');
+    a.className = 'arrow';
+    a.setAttribute('aria-hidden','true');
+    a.textContent = '\u2192';
+    btn.append(n, a);
+    btn.addEventListener('click', () => show(p));
+    li.appendChild(btn);
+    results.appendChild(li);
+  }
+
+  if (norm(raw).length < 2){
+    note.textContent = '';
+  } else if (!hits.length){
+    note.innerHTML = 'No match for <b></b>. Try just your surname, or ask at the door.';
+    note.querySelector('b').textContent = raw.trim();
+  } else if (total > CAP){
+    note.textContent = 'Showing the first ' + CAP + ' of ' + total + ' matches \u2014 add more of your name to narrow it down.';
+  } else {
+    note.textContent = '';
+  }
+}
+
+const card = answer.querySelector('.card');
+
+function show(p){
+  document.getElementById('a-who').textContent = p.name;
+  document.getElementById('a-num').textContent = p.table;
+  answer.hidden = false;
+  // restart the reveal so it plays on every lookup, not just the first
+  card.style.animation = 'none';
+  void card.offsetWidth;
+  card.style.animation = '';
+  // 3. keep focus and screen readers out of the page behind the card
+  sheet.inert = true;
+  document.getElementById('a-back').focus();
+}
+
+function close(){
+  answer.hidden = true;
+  sheet.inert = false;
+  input.focus();
+  input.select();
+}
+
+document.getElementById('a-back').addEventListener('click', close);
+
+input.addEventListener('input', render);
+input.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && shown.length === 1){ e.preventDefault(); show(shown[0]); }
+});
+
+clearBt.addEventListener('click', () => {
+  input.value = '';
+  render();
+  input.focus();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !answer.hidden) close();
+});
+
+render();
+</script>
+</body>
+</html>
