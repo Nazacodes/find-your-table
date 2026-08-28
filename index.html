@@ -117,12 +117,13 @@
 
   /* ---------- the place card ---------- */
   #answer{position:fixed;inset:0;z-index:20;background:var(--indigo);
-    display:flex;align-items:center;justify-content:center;padding:1.35rem}
+    display:flex;overflow-y:auto;
+    padding:1.6rem 1.35rem max(1.6rem,env(safe-area-inset-bottom))}
   #answer[hidden]{display:none}
-  #answer::before{content:"";position:absolute;inset:0;pointer-events:none;
+  #answer::before{content:"";position:fixed;inset:0;pointer-events:none;
     background:radial-gradient(ellipse at 50% 45%,rgba(201,160,99,.15),transparent 60%)}
 
-  .card{position:relative;width:100%;max-width:24rem;text-align:center;
+  .card{position:relative;margin:auto;width:100%;max-width:24rem;text-align:center;
     border:1px solid rgba(201,160,99,.32);border-radius:1.1rem;
     background:linear-gradient(180deg,var(--indigo-2),var(--indigo));
     padding:2.5rem 1.5rem 2.1rem;
@@ -137,10 +138,29 @@
   .card .label{font-size:.66rem;font-weight:600;letter-spacing:.3em;text-transform:uppercase;
     color:var(--coral);margin:0}
   .card .num{font-family:var(--display);font-weight:600;
-    font-size:clamp(5rem,34vw,8.5rem);line-height:.92;color:var(--brass);
-    margin:.15rem 0 0;letter-spacing:-.035em;
+    font-size:clamp(3.1rem,17vw,4rem);line-height:1;color:var(--brass);
+    margin:0;letter-spacing:-.035em;
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
     animation:num .55s .12s cubic-bezier(.16,.84,.24,1) both}
   @keyframes num{from{opacity:0;transform:translateY(.28em)}to{opacity:1;transform:none}}
+
+  /* the table itself, seen from above: one seat per guest, yours in coral */
+  .viz{position:relative;width:clamp(11.5rem,58vw,13rem);aspect-ratio:1;margin:.85rem auto 0}
+  .viz svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+  .viz .ring{fill:none;stroke:rgba(201,160,99,.38);stroke-width:1.4}
+  .viz .ring2{fill:none;stroke:rgba(201,160,99,.13);stroke-width:1}
+  .viz .seat{fill:var(--brass);transform-box:fill-box;transform-origin:center;
+    animation:seat .5s cubic-bezier(.16,.84,.24,1) both}
+  .viz .seat.you{fill:var(--coral)}
+  .viz .halo{fill:none;stroke:rgba(217,85,59,.45);stroke-width:1.4;
+    transform-box:fill-box;transform-origin:center;
+    animation:seat .5s cubic-bezier(.16,.84,.24,1) both}
+  @keyframes seat{from{opacity:0;transform:scale(0)}to{opacity:1;transform:none}}
+
+  .mates{list-style:none;margin:.4rem 0 0;padding:0;
+    font-size:.96rem;line-height:1.45;color:var(--ivory)}
+  .mates li{padding:.26rem 0}
+
   .card .tail{margin-top:1.6rem}
 
   .back{margin-top:1.9rem;background:none;border:1px solid var(--hair);border-radius:99px;
@@ -201,7 +221,13 @@
     <p class="who" id="a-who"></p>
     <div class="rule"></div>
     <p class="label">Table</p>
-    <p class="num" id="a-num"></p>
+    <div class="viz">
+      <svg id="a-viz" viewBox="0 0 200 200" aria-hidden="true"></svg>
+      <p class="num" id="a-num"></p>
+    </div>
+    <div class="rule" id="a-rule2"></div>
+    <p class="label" id="a-mates-label">Seated with</p>
+    <ul class="mates" id="a-mates"></ul>
     <div class="beads tail" aria-hidden="true">
       <i style="width:7px;height:7px"></i><i style="width:5px;height:5px"></i>
       <i style="width:9px;height:9px"></i><i style="width:5px;height:5px"></i>
@@ -602,14 +628,62 @@ const card = answer.querySelector('.card');
 function show(p){
   document.getElementById('a-who').textContent = p.name;
   document.getElementById('a-num').textContent = p.table;
+
+  // everyone at this table, in list order; you get the coral seat
+  const party = people.filter(x => x.table === p.table);
+  const NS = 'http://www.w3.org/2000/svg';
+  const viz = document.getElementById('a-viz');
+  viz.innerHTML = '';
+  const ring = (r, cls) => {
+    const c = document.createElementNS(NS, 'circle');
+    c.setAttribute('cx', 100); c.setAttribute('cy', 100); c.setAttribute('r', r);
+    c.setAttribute('class', cls);
+    viz.appendChild(c);
+  };
+  ring(78, 'ring'); ring(63, 'ring2');
+  party.forEach((m, i) => {
+    const a = -Math.PI / 2 + i * 2 * Math.PI / party.length;
+    const x = (100 + 78 * Math.cos(a)).toFixed(2);
+    const y = (100 + 78 * Math.sin(a)).toFixed(2);
+    const delay = (.18 + i * .05).toFixed(2) + 's';
+    if (m === p){
+      const h = document.createElementNS(NS, 'circle');
+      h.setAttribute('cx', x); h.setAttribute('cy', y); h.setAttribute('r', 11.5);
+      h.setAttribute('class', 'halo');
+      h.style.animationDelay = delay;
+      viz.appendChild(h);
+    }
+    const c = document.createElementNS(NS, 'circle');
+    c.setAttribute('cx', x); c.setAttribute('cy', y);
+    c.setAttribute('r', m === p ? 7 : 5.5);
+    c.setAttribute('class', m === p ? 'seat you' : 'seat');
+    c.style.animationDelay = delay;
+    viz.appendChild(c);
+  });
+
+  const list = document.getElementById('a-mates');
+  list.innerHTML = '';
+  for (const m of party){
+    if (m === p) continue;
+    const li = document.createElement('li');
+    li.textContent = m.name;
+    list.appendChild(li);
+  }
+  const alone = party.length < 2;
+  document.getElementById('a-rule2').hidden = alone;
+  document.getElementById('a-mates-label').hidden = alone;
+  list.hidden = alone;
+
   answer.hidden = false;
+  answer.scrollTop = 0;
   // restart the reveal so it plays on every lookup, not just the first
   card.style.animation = 'none';
   void card.offsetWidth;
   card.style.animation = '';
   // 3. keep focus and screen readers out of the page behind the card
   sheet.inert = true;
-  document.getElementById('a-back').focus();
+  // keep the tall card at its top on open — focus must not yank the view to the button
+  document.getElementById('a-back').focus({preventScroll: true});
 }
 
 function close(){
