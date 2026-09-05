@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#101627">
+<meta name="theme-color" content="#F6F0E2">
+<meta name="color-scheme" content="light">
 <meta name="robots" content="noindex">
 <title>Find your table</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,16 +12,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&display=swap" rel="stylesheet">
 <style>
   :root{
-    /* Benin regalia: indigo cloth, coral beads, cast brass, ivory lace */
-    --indigo:#101627;
-    --indigo-2:#182137;
-    --indigo-3:#1F2B45;
-    --coral:#D9553B;
-    --brass:#C9A063;
-    --brass-soft:#8E7342;
-    --ivory:#F3ECDD;
-    --muted:#8D93A8;
-    --hair:rgba(243,236,221,.12);
+    /* Benin regalia in daylight: ivory lace ground, indigo ink,
+       coral beads and cast bronze. Light ground + dark ink stays
+       readable in full Houston sun, where dark screens wash out. */
+    --indigo:#F6F0E2;
+    --indigo-2:#EFE7D2;
+    --indigo-3:#E9DFC5;
+    --coral:#B9391F;
+    --brass:#8A6A2F;
+    --brass-soft:#A08149;
+    --ivory:#191D33;
+    --muted:#5D6178;
+    --hair:rgba(25,29,51,.18);
 
     --display:"Fraunces",Georgia,"Times New Roman",serif;
     --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
@@ -43,7 +46,7 @@
   body::before{
     content:"";position:fixed;top:-30vh;left:50%;transform:translateX(-50%);
     width:130vw;height:70vh;pointer-events:none;z-index:0;
-    background:radial-gradient(ellipse at 50% 40%,rgba(217,85,59,.16),transparent 62%);
+    background:radial-gradient(ellipse at 50% 40%,rgba(185,57,31,.09),transparent 62%);
   }
 
   .sheet{position:relative;z-index:1;max-width:33rem;margin:0 auto;
@@ -76,10 +79,10 @@
     padding:1.1rem 1rem 1.1rem 2.95rem;outline:none;
     transition:border-color .2s,box-shadow .2s,background .2s;
     -webkit-appearance:none;appearance:none}
-  #q::placeholder{color:#5F6579}
+  #q::placeholder{color:#6E7288}
   #q::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none}
-  #q:focus-visible{border-color:var(--brass);background:var(--indigo-3);
-    box-shadow:0 0 0 3px rgba(201,160,99,.2)}
+  #q:focus-visible{border-color:var(--brass);background:#FFFDF6;
+    box-shadow:0 0 0 3px rgba(138,106,47,.22)}
 
   .clear{position:absolute;right:.6rem;width:2.1rem;height:2.1rem;border:0;
     background:none;color:var(--muted);font-size:1.35rem;line-height:1;cursor:pointer;
@@ -112,7 +115,7 @@
   .note b{color:var(--ivory);font-weight:600}
 
   .foot{display:flex;align-items:center;gap:.7rem;margin-top:3rem;
-    color:#5F6579;font-size:.76rem;letter-spacing:.14em;text-transform:uppercase}
+    color:#6E7288;font-size:.76rem;letter-spacing:.14em;text-transform:uppercase}
   .foot .line{flex:1;height:1px;background:var(--hair)}
 
   /* ---------- the place card ---------- */
@@ -121,11 +124,11 @@
     padding:1.6rem 1.35rem max(1.6rem,env(safe-area-inset-bottom))}
   #answer[hidden]{display:none}
   #answer::before{content:"";position:fixed;inset:0;pointer-events:none;
-    background:radial-gradient(ellipse at 50% 45%,rgba(201,160,99,.15),transparent 60%)}
+    background:radial-gradient(ellipse at 50% 45%,rgba(138,106,47,.12),transparent 60%)}
 
   .card{position:relative;margin:auto;width:100%;max-width:24rem;text-align:center;
-    border:1px solid rgba(201,160,99,.32);border-radius:1.1rem;
-    background:linear-gradient(180deg,var(--indigo-2),var(--indigo));
+    border:1px solid rgba(138,106,47,.5);border-radius:1.1rem;
+    background:linear-gradient(180deg,#FDFAF1,var(--indigo));
     padding:2.5rem 1.5rem 2.1rem;
     animation:card .5s cubic-bezier(.16,.84,.24,1) both}
   @keyframes card{from{opacity:0;transform:translateY(1.1rem) scale(.97)}to{opacity:1;transform:none}}
@@ -137,29 +140,36 @@
   .card .rule{width:2.6rem;height:1px;background:var(--brass-soft);margin:1.15rem auto}
   .card .label{font-size:.66rem;font-weight:600;letter-spacing:.3em;text-transform:uppercase;
     color:var(--coral);margin:0}
-  .card .num{font-family:var(--display);font-weight:600;
-    font-size:clamp(3.1rem,17vw,4rem);line-height:1;color:var(--brass);
+  .card .num{font-family:var(--display);font-weight:700;
+    font-size:clamp(4.3rem,26vw,5.6rem);line-height:1;color:var(--ivory);
     margin:0;letter-spacing:-.035em;
     position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
     animation:num .55s .12s cubic-bezier(.16,.84,.24,1) both}
   @keyframes num{from{opacity:0;transform:translateY(.28em)}to{opacity:1;transform:none}}
 
   /* the table itself, seen from above: one seat per guest, yours in coral */
-  .viz{position:relative;width:clamp(11.5rem,58vw,13rem);aspect-ratio:1;margin:.85rem auto 0}
+  .viz{position:relative;width:clamp(12.5rem,66vw,14.5rem);aspect-ratio:1;margin:.85rem auto 0}
   .viz svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-  .viz .ring{fill:none;stroke:rgba(201,160,99,.38);stroke-width:1.4}
-  .viz .ring2{fill:none;stroke:rgba(201,160,99,.13);stroke-width:1}
+  .viz .ring{fill:none;stroke:rgba(138,106,47,.55);stroke-width:1.4}
   .viz .seat{fill:var(--brass);transform-box:fill-box;transform-origin:center;
     animation:seat .5s cubic-bezier(.16,.84,.24,1) both}
   .viz .seat.you{fill:var(--coral)}
-  .viz .halo{fill:none;stroke:rgba(217,85,59,.45);stroke-width:1.4;
+  .viz .halo{fill:none;stroke:rgba(185,57,31,.55);stroke-width:1.4;
     transform-box:fill-box;transform-origin:center;
     animation:seat .5s cubic-bezier(.16,.84,.24,1) both}
   @keyframes seat{from{opacity:0;transform:scale(0)}to{opacity:1;transform:none}}
 
-  .mates{list-style:none;margin:.4rem 0 0;padding:0;
-    font-size:.96rem;line-height:1.45;color:var(--ivory)}
-  .mates li{padding:.26rem 0}
+  .mates{list-style:none;margin:.75rem 0 0;padding:0;
+    display:grid;grid-template-columns:1fr 1fr;gap:.55rem}
+  .mates li{background:#FFFDF6;border:1px solid var(--hair);border-radius:.7rem;
+    padding:.72rem .55rem;font-size:.95rem;font-weight:500;line-height:1.3;
+    color:var(--ivory);display:flex;flex-direction:column;align-items:center;
+    justify-content:center;text-align:center;
+    animation:chip .45s cubic-bezier(.16,.84,.24,1) both}
+  .mates li:last-child:nth-child(odd){grid-column:1/-1}
+  .mates li.you{border:1.5px solid var(--coral);color:var(--coral);font-weight:700}
+  .mates li.you small{font-size:.58rem;font-weight:700;letter-spacing:.3em;margin-top:.2rem}
+  @keyframes chip{from{opacity:0;transform:translateY(.5rem)}to{opacity:1;transform:none}}
 
   .card .tail{margin-top:1.6rem}
 
@@ -226,7 +236,7 @@
       <p class="num" id="a-num"></p>
     </div>
     <div class="rule" id="a-rule2"></div>
-    <p class="label" id="a-mates-label">Seated with</p>
+    <p class="label" id="a-mates-label">Your table</p>
     <ul class="mates" id="a-mates"></ul>
     <div class="beads tail" aria-hidden="true">
       <i style="width:7px;height:7px"></i><i style="width:5px;height:5px"></i>
@@ -243,54 +253,56 @@
    Edit a line, save, re-upload. Nothing else needs touching.
    ============================================================ */
 const GUESTS = `
-Andrew Ehimen, 1
-Justin Ehimen, 1
-Kelvin Ehimen, 1
-Chinanza O, 1
-Dumebi O, 1
-Jed I, 1
-Kelvin E, 1
-Jeff E, 1
-Leslie E, 1
+Chigozie M, 1
+Mitchelle M, 1
+Uzoma O, 1
 Mama Jeff, 1
-Chigozie M, 2
-Mitchelle M, 2
-Uzoma O, 2
-Yvonne E, 2
-Ebube O, 2
-Joy I, 2
-Veronica O, 2
-Eunice M, 2
-Bayo M, 2
-Sarah Ehikhamen, 2
-Ngozi Eke, 3
-Ndidi O, 3
-Mariam Akuette, 3
-Mrs Rosemarie Jeremiah, 3
-Mr Jeremiah, 3
-Mrs Ehinome Nwani, 3
-Mr Nwani, 3
-Ms. Felicite, 3
-Ms. Anne Ogbe, 3
-Florence Agwaze, 3
-Elder Charles, 4
-Mrs Ehikhamen, 4
-Dr Rosemary Aliu, 4
-Mr Adolphus Odianose, 4
-Mr Idoni Omoera, 4
-Moses Okhiria, 4
-Mrs Oboh, 4
-Mr Izevbigie, 4
-Mrs Izevbigie, 4
-Pastor Omoegbele, 5
-Deaconese Omoegbele, 5
-Dr Henry Ohen, 5
-Mrs Ohen, 5
-Dr Mark Irabor, 5
-Dr Deborah Iraboh, 5
-Mr Tony Obeahon, 5
-Mrs Omoye Obeahon, 5
-Mrs Patience Afolabi, 5
+Ebube O, 1
+Joy I, 1
+Veronica O, 1
+Eunice M, 1
+Leslie E, 1
+Sarah Ehikhamen, 1
+Ngozi Eke, 2
+Ndidi O, 2
+Mariam Akuette, 2
+Mrs Rosemarie Jeremiah, 2
+Mr Jeremiah, 2
+Mrs Ehinome Nwani, 2
+Mr Nwani, 2
+Ms. Felicite, 2
+Ms. Anne Ogbe, 2
+Florence Agwaze, 2
+Mrs Edith Nze, 3
+Ms. Amaka Nze, 3
+Mr Ijehor, 3
+Mrs Ijehor, 3
+Joan Jegede, 3
+Mr. Prince, 3
+Mr. Austin Irabor, 3
+Mr Nnamdi Iyeh, 3
+Mrs Chinyere Iyeh, 3
+Ibeh Austin, 3
+Mr Philip White, 4
+Mr Lucky Nwene, 4
+Mr Nwaugbala Onyeka, 4
+Mr Bobby Ukpabi, 4
+Mr Fredrick Alizomor, 4
+Mr Felix Ukpabi, 4
+Mr Emmanuel osiegbu, 4
+Mr chuks Ojehe, 4
+Mr chuks Ojehe (guest), 4
+Mr Emefiele Victor Akwara, 4
+Elder Charles, 5
+Mrs Ehikhamen, 5
+Dr Rosemary Aliu, 5
+Mr Adolphus Odianose, 5
+Mr Idoni Omoera, 5
+Moses Okhiria, 5
+Mrs Oboh, 5
+Mr Izevbigie, 5
+Mrs Izevbigie, 5
+Mr Robinson Eromosele, 5
 Mr Dan Uwagboi, 6
 Mrs Tina Ogbeide, 6
 Mr Olaniyi Newton, 6
@@ -300,227 +312,224 @@ Mr Lucky Uwagboi, 6
 Mrs Lucky Uwagboi, 6
 Mr Israel Edevbaro, 6
 Mrs Funmi Edevbaro, 6
-Mrs Edith Nze, 7
-Ms. Amaka Nze, 7
-Mr Ijehor, 7
-Mrs Ijehor, 7
-Joan Jegede, 7
-Austin Oganzor, 7
-Austin Irabor, 7
-Mr Nnamdi Iyeh, 7
-Mrs Chinyere Iyeh, 7
-Dr Aihie (Vibration), 8
-Mrs Aihie (Vibration), 8
-Mr Eric (Vibration), 8
-Mr Teslim Bello Osaigie, 8
-Mrs Osaigie, 8
-Mr Ihonre, 8
-Mrs Ihonre, 8
-Mr Nosa Ogbeifun, 8
-Dr Sele Ogbeifun, 8
-Mr Roland Omhenke, 9
-Mrs Anthonia Omhenke, 9
-Mr Bright Usifoh, 9
-Mrs Blessing Usifoh, 9
-Mr Patrick Ujadughele, 9
-Mr Frank Orukpe, 9
-Mrs Vivian Orukpe, 9
-Mr Ukpebor, 9
-Mrs Ukpebor, 9
-Mrs. Margaret Okoloise, 9
-High Chief Igene, 10
-High Chief Ighalo, 10
-Mrs Florence Ighalo, 10
-Mr Omo Akhile, 10
-Mrs Adesuwa Ohuoba, 10
-Mrs Paulyn Inegbedion, 10
-Mrs Rachel Imafidon, 10
-Mrs Dolly Oare, 10
-Blessing Eromomene, 11
-Gina Eromomene, 11
-Benedicta Enonbun, 11
-Jonathan Okojiabulu, 11
-David Isibor, 11
-Izehi Isibor, 11
-Engr Jude Daudu, 11
-Dr Respect Daudu, 11
-Mr Yinka Shekoni (Baruda), 12
-Yinka Guest, 12
-Dr Ebi Oare, 12
-Mrs Jemila Oare, 12
-Mr Desmond Obodo, 12
-Mrs Collete Obodo, 12
-Mr Tony Aghaji, 12
-Mrs Aghaji, 12
-Mrs Valentine Nouma, 12
-Mr Niyi Olawepo, 13
-Mrs Ronke Olawepo, 13
-Mr Chrys Ugorji, 13
-Mrs Ugorji, 13
-Mr Yemi Ajayi, 13
-Mrs Ajayi, 13
-Mr Samson Obuseh, 13
-Mrs Obuseh (Chiamaka Nweke), 13
-Mr Femi Ayoola, 13
-Mrs Ayoola, 13
-Mr Ugo Lekwauwa, 14
-Mrs Akudo Lekwauwa, 14
-Dr Kayode Itiola, 14
-Mrs Cynthia Itiola, 14
-Mr Bright Anozie, 14
-Mrs Sophie Anozie, 14
-Mr Nwokoro, 14
-Mrs Chinwe Nwokoro, 14
-Mr Francis Manga, 14
-Mrs Manga, 14
-Mr Victor Ogbenna, 15
-Mrs Ogbenna, 15
-Mr Stanley Ozigbo, 15
-Ms Imade, 15
-Ms Imade Guest, 15
-Mr Steve Nwoko, 15
-Mrs Nwoko, 15
-Mr Maxwell Ezeji, 15
-Mrs Yvonne Ezeji, 15
-Mrs Chidinma Achinuelo, 15
-Mr Omonzejele, 16
-Mrs Edith Omonzejele, 16
-Omonzejele Guest, 16
-Mr Toju Onuwaje, 16
-Mrs Amoni Onuwaje, 16
-Mr Ademola Adeoti, 16
-Mrs Temisan Adeoti, 16
-Mrs Tuoyo Onuwaje, 16
-Mrs Ifueko Eribo Akpata, 16
-Mrs Akpata Guest, 16
-Mr Eugene Edokpa, 17
-Mr HUMPHREY ABUMERE, 17
-Mr Bawo Nana, 17
-Mr Sam Edoba, 17
-Mr Fumnanya Nwaokobia, 17
-Mrs Fumnanya Nwaokobia, 17
-Mr Dickson Dike, 17
-King Bullah Omobogie, 17
-Mr Philip White, 18
-Mr Lucky Nwene, 18
-Mr Nwaugbala Onyeka, 18
-Mr Bobby Ukpabi, 18
-Mr Fredrick Alizomor, 18
-Mr Felix Ukpabi, 18
-Mr emmanuel osiegbu, 18
-Mr chuks Ojehe, 18
-Mr chuks Ojehe (guest), 18
-Mr Emefiele Victor Akwara, 18
-Mr Salau, 19
-Mrs Salau, 19
-Mrs Taofeekat Badmus, 19
-Mrs Remi Olaniru, 19
-Ms. Seyi Fad, 19
-Atinuke Bamiro, 19
-Mr Adelaja, 19
-Mrs Adelaja, 19
-High Chief Godday Ebiluye, 20
-Mrs Godday Ebiluye, 20
-High Chief Philips Ehiagwina, 20
-High Chief Philips Ehiagwina (guest), 20
-Mr Andrew Odia, 20
-Mr Peter Orukpe, 20
-Mr Samson Okosun, 20
-Mrs Samson Okosun, 20
-Mr Abu Adodo, 21
-Mrs Adodo, 21
-Mrs Evelyn Obiyon Aikharaekpen, 21
-Mr Aikharaekpen, 21
-Mr Chris Itua, 21
-Mrs Rita Itua, 21
-Dora Iremhinmhen, 21
-Mr Iremhinmhen, 21
-Josephine Emakpose, 21
-Mr Emakpose, 21
-Mr James Onobun, 22
-Mrs Onobun, 22
-Mr Jeffrey, 22
-Mrs Maris, 22
-Mr Ataghauman, 22
-Mrs Ataghauman, 22
-Mrs Bridget Ikhiake, 22
-Mrs Francess Woods, 22
-Mrs Woods (Guests), 22
-Mrs Mabel Izekor, 22
-Dr Vynce Omoleme, 23
-Dr Esther Vincent, 23
-Mrs Flora Kadiri, 23
-Mrs Josephine Omobhude, 23
-Mr Tony Iyere, 23
-Mrs Iyere, 23
-Mr Mathew Iyere, 23
-Mrs Iyere (2), 23
-Mr Chris Edokpa, 23
-Mrs Tammy Edokpa, 23
-Mr Olumese Odianosen, 24
-Mr Joshua Alli, 24
-Mr Matthew Omofuegbe, 24
-Mrs Omofuegbe, 24
-Mr Francis Itoya, 24
-Mrs Itoya, 24
-Engr Chris Ehizoba, 24
-Mrs Ehizoba, 24
-Mrs Omonivie Otoide, 24
-IDRISSA KARGBO, 24
-Mrs Toyin Ariyo, 25
-Mr Ariyo, 25
-Mr Gabriel Dada, 25
-Mrs Dada, 25
-Mr Tunde Ola, 25
-Mrs Ola, 25
-Mayern Richard, 25
-Mr Richard, 25
-Kasey Akpan, 25
-Mr Akpan, 25
-Mr Anjorin, 26
-Mrs Anjorin, 26
-Mr Anjorin jr, 26
-Ms. Iyabo Babajide, 26
-Mrs Helen Edozie, 26
-Mr Anthony Edozie, 26
-Mr Obadimeji, 26
-Mrs Obadimeji, 26
-Mr Emmanuel Omoegbele, 27
-Mrs Omoegbele, 27
-Dr Tracy Omoegbele, 27
-Mr John, 27
-Dr Faith Isiguzo, 27
-Mr Ike Isiguzo, 27
-Anne Omigie, 27
-Gloria Omigie, 27
-Mr Freeman, 27
-Mr Adeniyi Taiwo, 28
-Mrs Tolu Taiwo, 28
-Mrs Folashade Afolabi, 28
-Mrs Folashade Afolabi (guest), 28
-Paulyn Njuku, 28
-Leah Njuku, 28
-Mr Tijani, 28
-Mrs Tijani, Sefiyat, 28
-Sandra Nwegbu, 29
-Tumi Ade, 29
-Ubong Etuk, 29
-Sade Agbato, 29
-Toyin Solabi, 29
-Mr Solabi, 29
-Mr IIfeanyi Nwosu, 29
-Mrs Nwosu, 29
-Erina Imasogie, 29
-Michaella Bedford, 29
+Pastor Omoegbele, 7
+Deaconese Omoegbele, 7
+Dr Henry Ohen, 7
+Mrs Ohen, 7
+Dr Mark Irabor, 7
+Dr Deborah Iraboh, 7
+Mr Tony Obeahon, 7
+Mrs Omoye Obeahon, 7
+Mrs Patience Afolabi, 7
+Mrs Toyin Ariyo, 8
+Mr Ariyo, 8
+Mr Gabriel Dada, 8
+Mrs Dada, 8
+Mr Tunde Ola, 8
+Mrs Ola, 8
+Mayern Richard, 8
+Mr Richard, 8
+Kasey Akpan, 8
+Mr Akpan, 8
+Mr Salau, 9
+Mrs Salau, 9
+Mrs Taofeekat Badmus, 9
+Mrs Remi Olaniru, 9
+Ms. Seyi Fad, 9
+Atinuke Bamiro, 9
+Mr Adelaja, 9
+Mrs Adelaja, 9
+Mr Omonzejele, 10
+Mrs Edith Omonzejele, 10
+Ms. Ojevwe, 10
+Mr Toju Onuwaje, 10
+Mrs Amoni Onuwaje, 10
+Mrs Akpata Guest, 10
+Mr Ademola Adeoti, 10
+Mrs Temisan Adeoti, 10
+Mrs Tuoyo Onuwaje, 10
+Mr Abu Adodo, 11
+Mrs Adodo, 11
+Mrs Evelyn Obiyon Aikharaekpen, 11
+Mr Aikharaekpen, 11
+Mr Chris Itua, 11
+Mrs Rita Itua, 11
+Dora Iremhinmhen, 11
+Mr Iremhinmhen, 11
+Mrs Josephine Emakpose, 11
+Mr Emakpose, 11
+Mr Anjorin, 12
+Mrs Anjorin, 12
+Mr Anjorin jr, 12
+Ms. Iyabo Babajide, 12
+Mrs Helen Edozie, 12
+Mr Anthony Edozie, 12
+Mr Obadimeji, 12
+Mrs Obadimeji, 12
+Mr Emmanuel Omoegbele, 13
+Mrs Omoegbele, 13
+Dr Tracy Omoegbele, 13
+Mr John, 13
+Mr Ighodalo Ebhuoma, 13
+Mr Joseph Ujiagbe, 13
+Mr Ozi Emoni, 13
+Mr Akin Akere Okojie, 13
+Mr Victor Ikuehi, 13
+Mrs Brenda Ikuehi, 13
+Sandra Nwegbu, 14
+Tumi Ade, 14
+Ubong Etuk, 14
+Sade Agbato, 14
+Toyin Solabi, 14
+Mr Solabi, 14
+Mr Ilfeanyi Nwosu, 14
+Mrs Nwosu, 14
+Mrs Abiodun Olubajo, 14
+Mr Adeniyi Taiwo, 15
+Mrs Tolu Taiwo, 15
+Mrs Folashade Afolabi, 15
+Mrs Folashade Afolabi (guest), 15
+Mrs Pauline Njuku, 15
+Ms Leah Njuku, 15
+Mr Tijani, 15
+Mrs Tijani, Sefiyat, 15
+Mr Francis Manga, 15
+Mrs Manga, 15
+Andrew Ehimen, 16
+Justin Ehimen, 16
+Kelvin Ehimen, 16
+Chinanza O, 16
+Dumebi O, 16
+Jed I, 16
+Kelvin E, 16
+Jeff E, 16
+Bayo M, 16
+Mr Niyi Olawepo, 17
+Mrs Ronke Olawepo, 17
+Mrs Amechi Lloydk, 17
+Mr Seun Loydk, 17
+Mr Samson Obuseh, 17
+Mrs Obuseh (Chiamaka Nweke), 17
+Mrs Valentine Nouma, 17
+Mr Femi Ayoola, 17
+Mrs Ayoola, 17
+Mr Stanley Ozigbo, 17
+Mr Yinka Shekoni (Baruda), 18
+Yinka Guest, 18
+Dr Ebi Oare, 18
+Mrs Jemila Oare, 18
+Mr Desmond Obodo, 18
+Mrs Collete Obodo, 18
+Dr Kayode Itiola, 18
+Mrs Cynthia Itiola, 18
+Mr Evan Enwelikwu, 18
+Mr Bright Anozie, 19
+Mrs Sophie Anozie, 19
+Mr Nwokoro, 19
+Mrs Chinwe Nwokoro, 19
+Mr Ugo Lekwauwa, 19
+Mrs Akudo Lekwauwa, 19
+Mr Victor Ogbenna, 19
+Mrs Ogbenna, 19
+Mr Maxwell Ezeji, 19
+Mrs Yvonne Ezeji, 19
+Blessing Eromomene, 20
+Benedicta Enonbun, 20
+Jonathan Okojiabulu, 20
+David Isibor, 20
+Izehi Isibor, 20
+Engr Jude Daudu, 20
+Dr Respect Daudu, 20
+Mr Chrys Ugorji, 21
+Mrs Ugorji, 21
+Mr Steve Nwoko, 21
+Mrs Nwoko, 21
+Mr Tony Aghaji, 21
+Mrs Aghaji, 21
+Mrs Chidinma Achinuelo, 21
+Mrs Ajayi, 21
+Mr Sam Edoba, 21
+Mr Dickson Dike, 21
+Mr Roland Omhenke, 22
+Mrs Anthonia Omhenke, 22
+Mrs Blessing Usifoh, 22
+Mr Patrick Ujadughele, 22
+Mr Frank Orukpe, 22
+Mrs Vivian Orukpe, 22
+Mrs Ukpebor, 22
+High Chief Igene, 23
+High Chief Ighalo, 23
+Mrs Florence Ighalo, 23
+Mr Omo Akhile, 23
+Mrs Adesuwa Ohuoba, 23
+Mrs Paulyn Inegbedion, 23
+Mrs Rachel Imafidon, 23
+Mrs Dolly Oare, 23
+Dr Aihie (Vibration), 24
+Mrs Aihie (Vibration), 24
+Mr Eric (Vibration), 24
+Mr Vibration guest, 24
+Mr Teslim Bello Osaigie, 24
+Mrs Osaigie, 24
+Mr Ihonre, 24
+Mrs Ihonre, 24
+Mr Nosa Ogbeifun, 24
+Dr Sele Ogbeifun, 24
+Dr Vynce Omoleme, 25
+Dr Esther Vincent, 25
+Mrs Flora Kadiri, 25
+Mrs Josephine Omobhude, 25
+Mr Tony Iyere, 25
+Mrs Iyere, 25
+Mr Mathew Iyere, 25
+Mrs Iyere (2), 25
+Mr Chris Edokpa, 25
+Mrs Tammy Edokpa, 25
+Mr James Onobun, 26
+Mrs Onobun, 26
+Mr Jeffrey, 26
+Mrs Maris, 26
+Mr Ataghauman, 26
+Mrs Ataghauman, 26
+Mrs Bridget Ikhiake, 26
+Mrs Francess Woods, 26
+Mrs Woods (Guests), 26
+Mrs Mabel Izekor, 26
+High Chief Godday Ebiluye, 27
+Mrs Godday Ebiluye, 27
+High Chief Philips Ehiagwina, 27
+High Chief Philips Ehiagwina (guest), 27
+Mr Andrew Odia, 27
+Mrs Odia, 27
+Mr Peter Orukpe, 27
+Mr Samson Okosun, 27
+Mrs Samson Okosun, 27
+Mr Olumese Odianosen, 28
+Mr Joshua Alli, 28
+Mr Matthew Omofuegbe, 28
+Mrs Omofuegbe, 28
+Mr Francis Itoya, 28
+Mrs Itoya, 28
+Engr Chris Ehizoba, 28
+Mrs Ehizoba, 28
+Mrs Omonivie Otoide, 28
+IDRISSA KARGBO, 28
+Mr Eugene Edokpa, 29
+Mr HUMPHREY ABUMERE, 29
+Mr Bawo Nana, 29
+Mr Fumnanya Nwaokobia, 29
+Mrs Fumnanya Nwaokobia, 29
+Ms Imade, 29
+Ms Imade Guest, 29
 Mr Scott Okosun, 30
 Mrs Scott Okosun, 30
 Mr Collins Okosun, 30
 Mrs Collins Okosun, 30
-Mr Victor Ikuehi, 30
-Mrs Brenda Ikuehi, 30
-Mr Ighodalo Ebhuoma, 30
-Mr Joseph Ujiagbe, 30
-Mr Ozi Emoni, 30
+Faith Isiguzo, 30
+Mr Ike Isiguzo, 30
+Anne Omigie, 30
+Gloria Omigie, 30
+Mr Freeman, 30
 `;
 
 /* The small line above the heading: */
@@ -640,7 +649,7 @@ function show(p){
     c.setAttribute('class', cls);
     viz.appendChild(c);
   };
-  ring(78, 'ring'); ring(63, 'ring2');
+  ring(78, 'ring');
   party.forEach((m, i) => {
     const a = -Math.PI / 2 + i * 2 * Math.PI / party.length;
     const x = (100 + 78 * Math.cos(a)).toFixed(2);
@@ -661,14 +670,24 @@ function show(p){
     viz.appendChild(c);
   });
 
+  // the whole party as place cards, dealt in one by one; yours is the coral one
   const list = document.getElementById('a-mates');
   list.innerHTML = '';
-  for (const m of party){
-    if (m === p) continue;
+  party.forEach((m, i) => {
     const li = document.createElement('li');
-    li.textContent = m.name;
+    li.style.animationDelay = (.22 + i * .04).toFixed(2) + 's';
+    if (m === p){
+      li.className = 'you';
+      const name = document.createElement('span');
+      name.textContent = m.name;
+      const tag = document.createElement('small');
+      tag.textContent = 'YOU';
+      li.append(name, tag);
+    } else {
+      li.textContent = m.name;
+    }
     list.appendChild(li);
-  }
+  });
   const alone = party.length < 2;
   document.getElementById('a-rule2').hidden = alone;
   document.getElementById('a-mates-label').hidden = alone;
